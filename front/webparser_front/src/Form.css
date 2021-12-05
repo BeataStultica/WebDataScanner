@@ -1,0 +1,33 @@
+.demoForm {
+  width: 500px;
+  margin: auto;
+}
+
+.rad {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.type_radio {
+  text-align: center;
+}
+
+.keyword_arg {
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  margin-right: auto;
+  width: 40vw;
+}
+
+.invalid {
+  border: 2px solid red;
+}
+
+input {
+  outline: none;
+}
+
+label {
+  margin-top: 2vh;
+}
