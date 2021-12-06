@@ -31,3 +31,30 @@ input {
 label {
   margin-top: 2vh;
 }
+
+.redactor {
+  margin-top: 2vh;
+  width: 90vw;
+  height: 70vh;
+  outline: none;
+}
+
+textarea {
+  tab-size: 4;
+}
+
+.webapp {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.format {
+  width: 10vw;
+  align-self: center;
+}
+
+.btn {
+  width: 10vw;
+  align-self: center;
+}
