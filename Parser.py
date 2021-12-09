@@ -6,6 +6,7 @@ from selenium.webdriver.firefox.options import Options
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.keys import Keys
 import time
+from Boilerpipe import extract_text
 
 class WebParser:
     def __init__(self, time_w=10, source_count=40, browser_name='google', text_minimum=40, is_compare=False, links=False, query='', js_parse=True):
@@ -33,7 +34,7 @@ class WebParser:
         texts = []
         for i in self.links:
             data = trafilatura.fetch_url(i)
-            result = trafilatura.extract(data, favor_recall=True)
+            _, result = extract_text(data)#trafilatura.extract(data, favor_recall=True)
 
             if result is not None and "JavaScript недоступно." not in result:
                 if result is not None and len(result) >= self.text_minimum:
@@ -66,7 +67,7 @@ class WebParser:
            elem = self.browser.find_element_by_xpath('//*')
            source = elem.get_attribute("outerHTML")
            # print(source)
-           result = trafilatura.extract(source, favor_recall=True)
+           _, result = extract_text(source)#trafilatura.extract(source, favor_recall=True)
            #print('------------------\n')
            #print(result)
            return (result)
@@ -78,5 +79,13 @@ class WebParser:
             result += 'Джерело: '+ i[1]+'\n'+i[0] + '\n\n'
         return result
 
-#a = WebParser(query='a star algorithm')
+#a = WebParser(query='a star algorithm', source_count=10)
 #a.search_n()
+import re
+a = []
+strin = 'sss saw2    dsdsd 3dsd dddds s f. -'
+for i in list(filter(None, re.split('\w+', 'sss saw2    dsdsd 3dsd dddds s f. -'))):
+    sp = strin.split(i, 1)
+    a.append(sp[0])
+    strin = sp[1]
+print(a)
