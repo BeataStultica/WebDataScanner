@@ -1,12 +1,11 @@
 import random
-import time
-from flask import Flask, render_template, request
-from flask_cors import CORS, cross_origin
-from flask_socketio import SocketIO,  emit, join_room, leave_room
+from flask import Flask, request
+from flask_cors import CORS
+from flask_socketio import SocketIO,  emit
 from threading import Thread, Event
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
-
+from Parser import WebParser
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -15,16 +14,22 @@ CORS(app, )
 thread = Thread()
 thread_stop_event = Event()
 class DataThread(Thread):
-    def __init__(self, client):
+    def __init__(self, client, data):
         self.client = client
-        self.delay = 10
+        self.data = data
         super(DataThread, self).__init__()
     def dataGenerator(self):
         print("Initialising")
         try:
-            while not thread_stop_event.isSet():
-                socketio.emit('responseMessage', {'temperature': round(random.random()*10, 3)}, to=self.client)
-                time.sleep(self.delay)
+            #while not thread_stop_event.isSet():
+            parser = WebParser(time_w=int(self.data['time']), source_count=int(self.data['source_len']),
+                               browser_name=self.data['browser'], text_minimum=int(self.data['text_len']),
+                               is_compare=self.data['is_compared'], links=self.data['urls'],
+                               query=self.data['keyword'])
+            result = parser.search_n()
+            socketio.emit('responseMessage', {'data': result}, to=self.client)
+            thread_stop_event.set()
+                #time.sleep(self.delay)
         except KeyboardInterrupt:
             # kill()
             print("Keyboard  Interrupt")
@@ -33,8 +38,7 @@ class DataThread(Thread):
 @socketio.on('connect')
 def test_connect():
     print('someone connected to websocket')
-    emit('responseMessage', {'data': 'Connected! ayy'})
-    # need visibility of the global thread object
+    emit('responseMessage', {'data': 'Connected!'})
 
 
 @socketio.on('message')
@@ -53,20 +57,18 @@ def handle_message(message):
         if not thread.is_alive():
             thread_stop_event.clear()
             print("Starting Thread")
-            thread = DataThread(request.sid)
+            thread = DataThread(request.sid, message['data']
+                                )
             thread.start()
     else:
         print("Unknown command")
 
-@socketio.on_error_default  # handles all namespaces without an explicit error handler
+@socketio.on_error_default
 def default_error_handler(e):
     print('An error occured:')
     print(e)
 
 
-@app.route('/')
-def index():
-    return "Hello"
 
 
 if __name__ == '__main__':

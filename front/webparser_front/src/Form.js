@@ -15,6 +15,8 @@ class Form extends Component {
       time: 2,
       text_len: 30,
       urls: [],
+      search_sys: "google",
+      format: "txt",
       formErrors: {
         url: "",
         keyword: "",
@@ -45,14 +47,25 @@ class Form extends Component {
     });
     console.log("component mounted");
     this.socket.on("responseMessage", (message) => {
-      this.setState({ textvalue: message.temperature });
+      this.setState({ textvalue: message.data });
 
       console.log("responseMessage", message);
     });
   }
   handleEmit = (event) => {
     event.preventDefault();
-    this.socket.emit("message", { data: "Start Sending", status: "On" });
+    this.socket.emit("message", {
+      data: {
+        keyword: this.state.keyword,
+        source_len: this.state.source_len,
+        time: this.state.time,
+        text_len: this.state.text_len,
+        urls: this.state.urls,
+        is_compared: this.state.is_compared,
+        browser: this.state.search_sys,
+      },
+      status: "On",
+    });
     this.setState({ socketStatus: "On" });
 
     console.log("Emit Clicked");
@@ -227,6 +240,7 @@ class Form extends Component {
                 className="search_sys"
                 defaultValue="google"
                 name="search_sys"
+                onChange={this.handleUserInput}
               >
                 <option value="google">Google</option>
                 <option value="Bing">Bing</option>
@@ -338,7 +352,12 @@ class Form extends Component {
           onKeyDown={this.onKeyDown}
         />
         <label htmlFor="format">Формат збереження:</label>
-        <select className="format" defaultValue="txt" name="format">
+        <select
+          className="format"
+          defaultValue="txt"
+          name="format"
+          onChange={this.handleUserInput}
+        >
           <option value="txt">txt</option>
           <option value="doc">doc</option>
           <option value="json">json</option>
