@@ -6,7 +6,7 @@ from selenium.webdriver.firefox.options import Options
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.keys import Keys
 import time
-from Boilerpipe import extract_text
+from Boilerpipe import Boilerpipe
 
 class WebParser:
     def __init__(self, time_w=10, source_count=40, browser_name='google', text_minimum=40, is_compare=False, links=False, query='', js_parse=True):
@@ -19,6 +19,7 @@ class WebParser:
         self.query = query
         self.js_parse=js_parse
         self.browser = None
+        self.extractor = Boilerpipe()
 
     def search_n(self):
         if not self.links:
@@ -34,7 +35,7 @@ class WebParser:
         texts = []
         for i in self.links:
             data = trafilatura.fetch_url(i)
-            _, result = extract_text(data)#trafilatura.extract(data, favor_recall=True)
+            _, result = self.extractor.extract_text(data)#trafilatura.extract(data, favor_recall=True)
 
             if result is not None and "JavaScript недоступно." not in result:
                 if result is not None and len(result) >= self.text_minimum:
@@ -67,7 +68,7 @@ class WebParser:
            elem = self.browser.find_element_by_xpath('//*')
            source = elem.get_attribute("outerHTML")
            # print(source)
-           _, result = extract_text(source)#trafilatura.extract(source, favor_recall=True)
+           _, result = self.extractor.extract_text(source)#trafilatura.extract(source, favor_recall=True)
            #print('------------------\n')
            #print(result)
            return (result)
