@@ -47,7 +47,7 @@ class WebParser:
         print(len(texts))
 
         final_text =  self.formats_text(texts)
-        print(final_text)
+        #print(final_text)
         return final_text
         #print(result)
 
@@ -81,11 +81,4 @@ class WebParser:
 
 #a = WebParser(query='a star algorithm', source_count=10)
 #a.search_n()
-import re
-a = []
-strin = 'sss saw2    dsdsd 3dsd dddds s f. -'
-for i in list(filter(None, re.split('\w+', 'sss saw2    dsdsd 3dsd dddds s f. -'))):
-    sp = strin.split(i, 1)
-    a.append(sp[0])
-    strin = sp[1]
-print(a)
+

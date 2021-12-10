@@ -17,6 +17,7 @@ actions.update(dict.fromkeys(inline, 'inline'))
 blocks = ['li', 'h1', 'h2', 'h3']
 actions.update(dict.fromkeys(blocks, 'block'))
 
+
 def apply_font(start, txt):
     if not txt:
         return start
@@ -38,8 +39,10 @@ def apply_font(start, txt):
             pass
     return start
 
+
 def wc(text):
     return len(list(filter(None, re.split('\w+', text))))
+
 
 class Text(object):
     def __init__(self, text='', depth=0, ignore=0, tags=[], ids=[]):
@@ -52,12 +55,15 @@ class Text(object):
         self.wordcount = 0
         self.linecount = 0
         self.link_density = 0
-        self.word_density = 0
+        self.word_density = 1
+        self.upper_case_density = 0
+        self.puncts = 0
         self.recalc()
 
     def recalc(self):
         self.wordcount = wc(self.text)
         self.linecount = self.text.count('\n') + 1
+        self.upper_case_density, self.puncts = calc_upper_case(self.text)
         if self.wordcount:
             self.word_density = float(self.wordcount) / self.linecount
         if 'a' in self.tags:
@@ -65,6 +71,11 @@ class Text(object):
 
     def merge(self, other):
         self.text += ' ' + other.text
+        self.labels |= other.labels
+        self.recalc()
+
+    def reverse_merge(self, other):
+        self.text = other.text + ' ' + self.text
         self.labels |= other.labels
         self.recalc()
 
@@ -76,7 +87,8 @@ class Text(object):
         return len(self.text)
 
     def __repr__(self):
-        return '<%s depth=%d ignore=%d tags=%r ids=%r labels=%r text=%r>' % (self.__class__.__name__, self.depth, self.ignore, self.tags, self.ids, self.labels, self.text)
+        return '<%s depth=%d ignore=%d tags=%r ids=%r labels=%r text=%r>' % (
+        self.__class__.__name__, self.depth, self.ignore, self.tags, self.ids, self.labels, self.text)
 
 
 class ParseState(object):
@@ -91,11 +103,11 @@ class ParseState(object):
         self.body_depth = 0
         self.font_sizes = [3]
 
-
     def flush(self, *labels):
         curr = self.curr_text.strip()
         if curr:
-            self.parts.append(Text(self.curr_text, len(self.tags) + 1, self.ignore_depth, self.tags[:], self.curr_ids[:]))
+            self.parts.append(
+                Text(self.curr_text, len(self.tags) + 1, self.ignore_depth, self.tags[:], self.curr_ids[:]))
             self.parts[-1].labels |= set(labels)
         self.curr_text = ''
 
@@ -189,15 +201,16 @@ def parse_html(html):
     descend(bs, state)
     return state
 
+
 def merge_text_density(blocks):
     for prev, curr in zip([Text()] + blocks, blocks):
         if prev.wordcount and curr.wordcount and (prev.wordcount + curr.wordcount) > 30:
-            # roughly similar word densities
-            if 0.5 < (prev.word_density / curr.word_density) < 2.0:
-                curr.merge(prev)
+            if (0.5 < (prev.word_density / curr.word_density) < 2.0) :
+                curr.reverse_merge(prev)
                 prev.labels.add('ignore')
                 prev.labels.add('ignore_merge_text_density')
     return
+
 
 def density_marker(blocks):
     for prev, curr, next in zip([Text()] + blocks, blocks, blocks[1:] + [Text()]):
@@ -216,69 +229,61 @@ def density_marker(blocks):
                         use = True
                     else:
                         use = False
+                if curr.upper_case_density >= 0.2:
+                    if next.upper_case_density >= 0.2:
+                        if prev.upper_case_density >= 0.2 or (curr.puncts + prev.puncts+next.puncts <= 2):
+                            use = False
+                        elif use is True:
+                            use = True
+                    elif (curr.puncts + prev.puncts+next.puncts <= 2) and prev.upper_case_density >=0.2:
+                        use = False
+                    elif use is True:
+                        use = True
+                else:
+                    if next.upper_case_density and use is True:
+                        use = True
+                    else:
+                        use = False
+
         else:
             use = False
         if use:
             curr.labels.add('content')
             curr.labels.add('content_density_marker')
+        else:
+            curr.labels.discard('content')
+            curr.labels.discard('content_density_marker')
 
 
-def largest_block(blocks, expand_same_level=True, minwords=150):
-    best = (0, -1)
-    for i, block in enumerate(blocks):
-        if block.is_content or 'maybe_content' in block.labels:
-            if block.wordcount > minwords:
-                best = max(best, (block.wordcount, i))
-    longest, i = best
-    if not longest:
-        return
-    main = blocks[i]
-    main.labels.add('likely_content')
-    for block in blocks:
-        block.labels.add('maybe_content')
-        block.labels.add('maybe_content_largest_block')
 
-    for adjacents in [reversed(blocks[:i]), blocks[i+1:]]:
-        for adj in adjacents:
-            if len(adj.tags) < len(main.tags):
-                break
-            elif len(adj.tags) == len(main.tags):
-                if not block.is_content:
-                    adj.labels.discard('ignore')
-                    adj.labels.add('!ignore_largest_block')
-                    adj.labels.add('content')
-                adj.labels.add('content_largest_block')
-
-def merge_blocks(blocks, content_only=False, same_depth_only=False):
-    it = iter(blocks)
-    try:
-        prev = Text()
-        curr = next(it)
-        while True:
-            if not curr.is_content or \
-               (content_only and (not curr.is_content or not prev.is_content)) or \
-               (same_depth_only and len(curr.tags) != len(prev.tags)):
-                prev = curr
-                curr = next(it)
-                continue
-            else:
-                prev.merge(curr)
-                curr.labels.add('ignore')
-                curr.labels.add('ignore_merge_blocks')
-                curr = next(it)
-    except StopIteration:
-        pass
-
+def calc_upper_case(text):
+    words = []
+    puncts = ['.', '!', '?']
+    punct_coin = 0
+    for i in puncts:
+        if i in text:
+            punct_coin+=1
+    for i in list(filter(None, re.split('\w+', text))):
+        sp = text.split(i, 1)
+        words.append(sp[0])
+        text = sp[1]
+    if len(text) >0:
+        words.append(text)
+    count_up = 0
+    for w in words:
+        if len(w)>0:
+            if w[0].isupper():
+                count_up += 1
+    return (count_up / (len(words)+0.00001), punct_coin)
 
 
 def ignore_comments(blocks):
     for block in blocks:
         if block.text.lower().startswith(('sign in', 'log in', 'forgot your password?',
-                                          'create account','sign In', 'you are using an outdated browser')):
+                                          'create account', 'sign In', 'you are using an outdated browser')):
             block.labels.add('ignore')
             block.labels.add('ignore_ignore_comments')
     return
-
 
 
 def title_cleaner(title):
@@ -287,15 +292,22 @@ def title_cleaner(title):
     best = best.replace("'", "", 1)
     return best
 
+
 def simple_filter(html):
     page = parse_html(html)
     blocks = page.parts
     blocks = [block for block in blocks if not block.ignore]
+    # density_marker(blocks)
     merge_text_density(blocks)
-    merge_blocks(blocks)
+    blocks = [block for block in blocks if 'ignore' not in block.labels]
     density_marker(blocks)
     page.good = [block for block in blocks if block.is_content]
-    largest_block(blocks)
+    #print(page.good)
+#    print('---')
+#    print(page.good[-2].text + str(page.good[-2].upper_case_density) +' p '+ str(page.good[-2].puncts))
+#    print(page.good[-1].text + str(page.good[-1].upper_case_density) +' p '+ str(page.good[-1].puncts))
+#    print(page.good[-3].text + str(page.good[-3].upper_case_density)+ ' p '+ str(page.good[-3].puncts))
+
     page.good = [block for block in blocks if block.is_content]
     return page
 
@@ -313,13 +325,13 @@ def clean_body(body, title):
 
     return body
 
+
 def meat2(html):
     page = simple_filter(html)
     title = page.title
-    #blocks = filter(lambda x:x.wordcount>3, page.good)
     best = ''
     for p in page.good:
-        best += clean_body(p.text, title)
+        best += clean_body(p.text, title) + ' '
     best = clean_body(best, title)
     return title, best
 
