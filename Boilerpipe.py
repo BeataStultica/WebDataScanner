@@ -141,7 +141,7 @@ class ParseState(object):
             self.curr_ids.append('')
         if action == 'anchor':
             self.anchor_depth += 1
-            assert self.anchor_depth == 1, "Anchor tags can't be nested"
+            #assert self.anchor_depth == 1, "Anchor tags can't be nested"
         elif action == 'ignore':
             self.flush()
             self.ignore_depth += 1
@@ -208,8 +208,18 @@ class ParseState(object):
         return '<%s %d:%r>' % (self.__class__.__name__, len(self.parts), map(len, self.parts))
 
 class Boilerpipe:
-    def __init__(self):
+    def __init__(self, cud=0.2, nud=0.2, pud=0.2, tp=2, cld=0.333333, pld=0.555556, cwd=9, nwd=10, pwd=4):
         self.cleaners = HTMLcleaners()
+        self.cud = cud
+        self.nud = nud
+        self.pud = pud
+        self.tp = tp
+        self.cld = cld
+        self.pld = pld
+        self.cwd = cwd
+        self.nwd = nwd
+        self.pwd = pwd
+
     def descend(self, node, state):
         state.tag_start(node.name.lower(), node)
         for child in node.childGenerator():
@@ -241,11 +251,11 @@ class Boilerpipe:
 
     def density_marker(self, blocks):
         for prev, curr, next in zip([Text()] + blocks, blocks, blocks[1:] + [Text()]):
-            if curr.link_density <= 0.333333:
-                if prev.link_density <= 0.555556:
-                    if curr.word_density <= 9:
-                        if next.word_density <= 10:
-                            if prev.word_density <= 4:
+            if curr.link_density <= self.cld:
+                if prev.link_density <= self.pld:
+                    if curr.word_density <= self.cwd:
+                        if next.word_density <= self.nwd:
+                            if prev.word_density <= self.pwd:
                                 use = False
                             else:
                                 use = True
@@ -256,13 +266,13 @@ class Boilerpipe:
                             use = True
                         else:
                             use = False
-                    if curr.upper_case_density >= 0.2:
-                        if next.upper_case_density >= 0.2:
-                            if prev.upper_case_density >= 0.2 or (curr.puncts + prev.puncts+next.puncts <= 2):
+                    if curr.upper_case_density >= self.cud:
+                        if next.upper_case_density >= self.nud:
+                            if prev.upper_case_density >= self.pud or (curr.puncts + prev.puncts+next.puncts <= self.tp):
                                 use = False
                             elif use is True:
                                 use = True
-                        elif (curr.puncts + prev.puncts+next.puncts <= 2) and prev.upper_case_density >=0.2:
+                        elif (curr.puncts + prev.puncts+next.puncts <= self.tp) and prev.upper_case_density >=self.pud:
                             use = False
                         elif use is True:
                             use = True

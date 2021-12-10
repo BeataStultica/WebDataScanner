@@ -16,29 +16,33 @@ class HTMLcleaners:
 
     def translate_microsoft(self, txt):
         """ turn word document ungliness into ascii """
-        txt = txt.replace(u"\u201c", '"')
-        txt = txt.replace(u"\u201d", '"')
-        txt = txt.replace(u"\u2018", "'")
-        txt = txt.replace(u"\u2019", "'")
-        txt = txt.replace(u"\u02BC", "'")
-        txt = txt.replace(u"\u2063", " ")
-        txt = txt.replace(u"\u2026", "...")
-        txt = txt.replace(u"\u2022", "-")
-        txt = txt.replace(u"\u25cf", "-")
-        txt = txt.replace(u"\u2012", "-")
-        txt = txt.replace(u"\u2013", "-")
-        txt = txt.replace(u"\u2014", "-")
-        txt = txt.replace(u"\u2015", "-")
-        txt = txt.replace(u"\u2053", "-")
-        txt = txt.replace(u"\u2E3A", "-")
-        txt = txt.replace(u"\u2E3B", "-")
-        txt = txt.replace(u"\u2025", ' ')
-        txt = txt.replace(u"\xa0", ' ')
-        return txt
+        if txt:
+            txt = txt.replace(u"\u201c", '"')
+            txt = txt.replace(u"\u201d", '"')
+            txt = txt.replace(u"\u2018", "'")
+            txt = txt.replace(u"\u2019", "'")
+            txt = txt.replace(u"\u02BC", "'")
+            txt = txt.replace(u"\u2063", " ")
+            txt = txt.replace(u"\u2026", "...")
+            txt = txt.replace(u"\u2022", "-")
+            txt = txt.replace(u"\u25cf", "-")
+            txt = txt.replace(u"\u2012", "-")
+            txt = txt.replace(u"\u2013", "-")
+            txt = txt.replace(u"\u2014", "-")
+            txt = txt.replace(u"\u2015", "-")
+            txt = txt.replace(u"\u2053", "-")
+            txt = txt.replace(u"\u2E3A", "-")
+            txt = txt.replace(u"\u2E3B", "-")
+            txt = txt.replace(u"\u2025", ' ')
+            txt = txt.replace(u"\xa0", ' ')
+            return txt
+        return ''
 
 
 
     def translate_html_entities(self, html):
+        if not html:
+            html = ''
         parts = []
         curr = 0
         for m in re.finditer('&#([xX]?)([0-9a-fA-F]+);', html):

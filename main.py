@@ -25,7 +25,7 @@ class DataThread(Thread):
             parser = WebParser(time_w=int(self.data['time']), source_count=int(self.data['source_len']),
                                browser_name=self.data['browser'], text_minimum=int(self.data['text_len']),
                                is_compare=self.data['is_compared'], links=self.data['urls'],
-                               query=self.data['keyword'])
+                               query=self.data['keyword'], parse_type=self.data['parse_type'])
             result = parser.search_n()
             socketio.emit('responseMessage', {'data': result}, to=self.client)
             thread_stop_event.set()

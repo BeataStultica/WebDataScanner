@@ -30,7 +30,7 @@ class Form extends Component {
       timeValid: true,
       text_lenValid: true,
       formValid: false,
-      parse_type: false,
+      parse_type: "",
       is_compared: false,
       textvalue: "",
     };
@@ -63,6 +63,7 @@ class Form extends Component {
         urls: this.state.urls,
         is_compared: this.state.is_compared,
         browser: this.state.search_sys,
+        parse_type: this.state.parse_type,
       },
       status: "On",
     });
