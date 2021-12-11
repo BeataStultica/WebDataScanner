@@ -31,20 +31,14 @@ class WebParser:
 
     def search_n(self):
         if self.js_parse or self.browser_name=='Bing':
-            options = webdriver.FirefoxOptions()
-            options.log.level = "trace"
-
-            options.add_argument("-remote-debugging-port=9224")
-            options.add_argument("-headless")
-            options.add_argument("-disable-gpu")
-            options.add_argument("-no-sandbox")
-            binary = FirefoxBinary(os.environ.get('FIREFOX_BIN'))
-
-            self.browser = webdriver.Firefox(
-                firefox_binary=binary,
-                executable_path=os.environ.get('GECKODRIVER_PATH'),
-                options=options)
-            #self.browser.set_page_load_timeout(self.time_w)
+            GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google_chrome'
+            CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
+            chrome_options = webdriver.ChromeOptions()
+            chrome_options.add_argument('--disable-gpu')
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.binary_location = GOOGLE_CHROME_PATH
+            self.browser = webdriver.Chrome(execution_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
+            self.browser.set_page_load_timeout(self.time_w)
         if not self.links or self.parse_type=='keyword':
             self.links = []
             if self.browser_name == 'google':
