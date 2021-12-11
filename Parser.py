@@ -31,12 +31,11 @@ class WebParser:
 
     def search_n(self):
         if self.js_parse or self.browser_name=='Bing':
-            GOOGLE_CHROME_PATH = '/app/.apt/usr/bin/google_chrome'
             CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
             chrome_options = webdriver.ChromeOptions()
             chrome_options.add_argument('--disable-gpu')
             chrome_options.add_argument('--no-sandbox')
-            chrome_options.binary_location = GOOGLE_CHROME_PATH
+            chrome_options.binary_location = os.environ.get('GOOGLE_CHROME_SHIM', None)
             self.browser = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
             self.browser.set_page_load_timeout(self.time_w)
         if not self.links or self.parse_type=='keyword':
