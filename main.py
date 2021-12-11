@@ -75,6 +75,6 @@ def hello():
 
 
 if __name__ == '__main__':
-    #socketio.run(app, debug=False, port=5000)
-    http_server = WSGIServer(('',5000), app, handler_class=WebSocketHandler)
-    http_server.serve_forever()
+    socketio.run(app)
+    #http_server = WSGIServer(('',5000), app, handler_class=WebSocketHandler)
+    #http_server.serve_forever()
