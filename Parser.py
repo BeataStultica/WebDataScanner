@@ -32,7 +32,7 @@ class WebParser:
             options = Options()
             options.add_argument('--enable-javascript')
             options.headless = True
-            self.browser = webdriver.Firefox(options=options, executable_path=GeckoDriverManager().install())
+            self.browser = webdriver.Firefox(options=options, executable_path='./geckodriver.exe')
             self.browser.set_page_load_timeout(self.time_w)
         if not self.links or self.parse_type=='keyword':
             self.links = []
