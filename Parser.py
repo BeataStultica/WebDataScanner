@@ -60,6 +60,7 @@ class WebParser:
         final_text = self.formats_text(texts)
         if self.browser:
             self.browser.quit()
+        print(len(texts))
         return final_text
 
     def compare_texts(self, texts):
@@ -77,7 +78,6 @@ class WebParser:
         for i in range(len(texts)):
             if i not in deleted:
                 result.append(texts[i])
-        print("Result comp " + str(len(result)))
         return result
 
 
@@ -88,7 +88,6 @@ class WebParser:
         while numberOfScrollDowns >=0:
             body.send_keys(Keys.PAGE_DOWN)
             numberOfScrollDowns -= 1
-     #  return browser
 
     def crawl_url(self, url):
         try:
@@ -97,11 +96,8 @@ class WebParser:
            self.scrollDown( 20)
            elem = self.browser.find_element_by_xpath('//*')
            source = elem.get_attribute("outerHTML")
-           # print(source)
-           _, result = self.extractor.extract_text(source)#trafilatura.extract(source, favor_recall=True)
-           #print('------------------\n')
-           #print(result)
-           #self.browser.close()
+           _, result = self.extractor.extract_text(source)
+
            return (result)
         except:
            return ''

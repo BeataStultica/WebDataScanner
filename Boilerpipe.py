@@ -8,10 +8,10 @@ def wc(text):
 
 
 class Text:
-    def __init__(self, text='', depth=0, ignore=0, tags=[], ids=[]):
+    def __init__(self, text='',  ignore=0, tags=[], ids=[]):
         self.cleaners = HTMLcleaners()
         self.text = self.cleaners.clean_html(text)
-        self.depth = depth
+        #self.depth = depth
         self.ignore = ignore
         self.tags = tags
         self.ids = ids
@@ -68,10 +68,6 @@ class Text:
     def __len__(self):
         return len(self.text)
 
-    def __repr__(self):
-        return '<%s depth=%d ignore=%d tags=%r ids=%r labels=%r text=%r>' % (
-        self.__class__.__name__, self.depth, self.ignore, self.tags, self.ids, self.labels, self.text)
-
 
 class ParseState(object):
     def __init__(self):
@@ -81,8 +77,6 @@ class ParseState(object):
         self.curr_ids = []
         self.tags = []
         self.ignore_depth = 0
-        self.anchor_depth = 0
-        self.body_depth = 0
         self.font_sizes = [3]
         self.__actions = {}
         self.fill_actions()
@@ -107,7 +101,7 @@ class ParseState(object):
         curr = self.curr_text.strip()
         if curr:
             self.parts.append(
-                Text(self.curr_text, len(self.tags) + 1, self.ignore_depth, self.tags[:], self.curr_ids[:]))
+                Text(self.curr_text, self.ignore_depth, self.tags[:], self.curr_ids[:]))
             self.parts[-1].labels |= set(labels)
         self.curr_text = ''
 
@@ -140,13 +134,12 @@ class ParseState(object):
         except KeyError:
             self.curr_ids.append('')
         if action == 'anchor':
-            self.anchor_depth += 1
+            pass
         elif action == 'ignore':
             self.flush()
             self.ignore_depth += 1
         elif action == 'body':
             self.flush()
-            self.body_depth += 1
         elif action == 'inline':
             self.curr_text = self.curr_text.strip(' ') + ' '
             if name == 'font':
@@ -176,13 +169,12 @@ class ParseState(object):
     def tag_end(self, name):
         action = self.__actions.get(name, None)
         if action == 'anchor':
-            self.anchor_depth -= 1
+            pass
         elif action == 'ignore':
             self.flush()
             self.ignore_depth -= 1
         elif action == 'body':
             self.flush()
-            self.body_depth -= 1
         elif action == 'inline':
             self.curr_text = self.curr_text.strip() + u' '
             if name == 'font':
