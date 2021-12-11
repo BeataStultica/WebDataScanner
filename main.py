@@ -21,7 +21,7 @@ class DataThread(Thread):
     def dataGenerator(self):
         print("Initialising")
         try:
-            emit('Message', {'data': 'Start search'})
+            socketio.emit('Message', {'data': 'Start search'}, to=self.client)
             #while not thread_stop_event.isSet():
             parser = WebParser(time_w=int(self.data['time']), source_count=int(self.data['source_len']),
                                browser_name=self.data['browser'], text_minimum=int(self.data['text_len']),
@@ -56,6 +56,7 @@ def handle_message(message):
             print("Thread not alive")
     elif (message["status"]=="On"):
         if not thread.is_alive():
+            emit('Message', {'data': 'Start'})
             thread_stop_event.clear()
             print("Starting Thread")
             thread = DataThread(request.sid, message['data']
