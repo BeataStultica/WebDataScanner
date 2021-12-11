@@ -5,6 +5,8 @@ from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 import trafilatura
 from selenium import webdriver
+from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+import os
 from selenium.webdriver.firefox.options import Options
 from webdriver_manager.firefox import GeckoDriverManager
 from selenium.webdriver.common.keys import Keys
@@ -32,7 +34,12 @@ class WebParser:
             options = Options()
             options.add_argument('--enable-javascript')
             options.headless = True
-            self.browser = webdriver.Firefox(options=options, executable_path='./geckodriver.exe')
+            binary = FirefoxBinary(os.environ.get('FIREFOX_BIN'))
+
+            self.browser = webdriver.Firefox(
+                firefox_binary=binary,
+                executable_path=os.environ.get('GECKODRIVER_PATH'),
+                options=options)
             self.browser.set_page_load_timeout(self.time_w)
         if not self.links or self.parse_type=='keyword':
             self.links = []
