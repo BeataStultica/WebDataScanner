@@ -43,21 +43,23 @@ class HTMLcleaners:
     def translate_html_entities(self, html):
         if not html:
             html = ''
-        '''
-        parts = []
-        curr = 0
-        for m in re.finditer('&#([xX]?)([0-9a-fA-F]+);', html):
-            parts.append(html[curr:m.start()])
-            ishex, number = m.groups()
-            value = chr(int(number, base=(16 if (ishex) else 10)))
-            parts.append(value)
-            curr = m.end()
-        parts.append(html[curr:])
-        html = ''.join(parts)
-        '''
-        for code, translation in self.entities.items():
-            html = html.replace('&%s;' % code, translation)
-        return html
+        try:
+            parts = []
+            curr = 0
+            for m in re.finditer('&#([xX]?)([0-9a-fA-F]+);', html):
+                parts.append(html[curr:m.start()])
+                ishex, number = m.groups()
+                value = chr(int(number, base=(16 if (ishex) else 10)))
+                parts.append(value)
+                curr = m.end()
+            parts.append(html[curr:])
+            html = ''.join(parts)
+        except:
+            print('Recursion limit')
+        finally:
+            for code, translation in self.entities.items():
+                html = html.replace('&%s;' % code, translation)
+            return html
 
     def translate_nurses(self, txt):
         txt = txt.replace('\r\n', '\n')
@@ -66,12 +68,14 @@ class HTMLcleaners:
 
     def translate_whitespace(self, txt):
         txt = txt.replace('\t', ' ')
-        txt = re.sub(' +', ' ', txt)
         txt = txt.replace(' \n', '\n')
         txt = txt.replace('\n ', '\n')
-        txt = re.sub(' +', ' ', txt)
         txt = txt.replace('\n\n', '\n')
-        return txt
+        try:
+            txt = re.sub(' +', ' ', txt)
+            return txt
+        except:
+            return txt
 
     def clean_html(self, html):
         return self.translate_whitespace(self.translate_microsoft(self.translate_html_entities(html)))
