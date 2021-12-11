@@ -4,3 +4,7 @@
 .idea
 /templates
 /Scripts
+geckodriver.log
+.google-cookie
+.vscode
+.metals
