@@ -43,6 +43,7 @@ class HTMLcleaners:
     def translate_html_entities(self, html):
         if not html:
             html = ''
+        '''
         parts = []
         curr = 0
         for m in re.finditer('&#([xX]?)([0-9a-fA-F]+);', html):
@@ -53,6 +54,7 @@ class HTMLcleaners:
             curr = m.end()
         parts.append(html[curr:])
         html = ''.join(parts)
+        '''
         for code, translation in self.entities.items():
             html = html.replace('&%s;' % code, translation)
         return html
