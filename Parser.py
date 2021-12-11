@@ -37,7 +37,7 @@ class WebParser:
             chrome_options.add_argument('--disable-gpu')
             chrome_options.add_argument('--no-sandbox')
             chrome_options.binary_location = GOOGLE_CHROME_PATH
-            self.browser = webdriver.Chrome(execution_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
+            self.browser = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH, chrome_options=chrome_options)
             self.browser.set_page_load_timeout(self.time_w)
         if not self.links or self.parse_type=='keyword':
             self.links = []
