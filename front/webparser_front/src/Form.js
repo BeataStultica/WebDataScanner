@@ -51,6 +51,9 @@ class Form extends Component {
 
       console.log("responseMessage", message);
     });
+    this.socket.on("Message", (message) => {
+      console.log("responseMessage", message);
+    });
   }
   handleEmit = (event) => {
     event.preventDefault();
