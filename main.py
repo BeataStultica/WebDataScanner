@@ -6,7 +6,7 @@ from threading import Thread, Event
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
 from Parser import WebParser
-
+import time
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -40,7 +40,10 @@ class DataThread(Thread):
 def test_connect():
     print('someone connected to websocket')
     emit('Message', {'data': 'Connected!'})
-
+def interval_reply(client):
+    while True:
+        time.sleep(10)
+        socketio.emit('Message', {'data': 'spam'}, to=client)
 
 @socketio.on('message')
 def handle_message(message):
@@ -61,7 +64,10 @@ def handle_message(message):
             print("Starting Thread")
             thread = DataThread(request.sid, message['data']
                                 )
+            interval = Thread(target=interval_reply, args=(request.sid,))
+            interval.start()
             thread.start()
+            interval.join()
     else:
         print("Unknown command")
 
