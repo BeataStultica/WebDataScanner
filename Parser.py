@@ -29,7 +29,7 @@ class WebParser:
         self.browser = None
         self.extractor = Boilerpipe()
 
-    def search_n(self):
+    def search_n(self, socketio, client):
         if self.js_parse or self.browser_name=='Bing':
             CHROMEDRIVER_PATH = '/app/.chromedriver/bin/chromedriver'
             chrome_options = webdriver.ChromeOptions()
@@ -48,6 +48,7 @@ class WebParser:
         texts = []
 
         for i in self.links:
+            socketio.emit('Message', {'data': 'Триває збір даних'}, to=client)
             data = requests.get(i, verify=False).text
             _, result = self.extractor.extract_text(data)
 
