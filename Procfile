@@ -1,2 +1,2 @@
 heroku ps:scale web=1
-web gunicorn -k flask_sockets.worker main:app
+web: gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 main:app
