@@ -72,6 +72,6 @@ def default_error_handler(e):
 
 
 if __name__ == '__main__':
-    # socketio.run(app, debug=False, host='0.0.0.0')
-    http_server = WSGIServer(app, handler_class=WebSocketHandler)
+    #socketio.run(app, debug=False, port=5000)
+    http_server = WSGIServer(('',5000), app, handler_class=WebSocketHandler)
     http_server.serve_forever()
