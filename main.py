@@ -38,7 +38,7 @@ class DataThread(Thread):
 @socketio.on('connect')
 def test_connect():
     print('someone connected to websocket')
-    emit('responseMessage', {'data': 'Connected!'})
+    emit('Message', {'data': 'Connected!'})
 
 
 @socketio.on('message')

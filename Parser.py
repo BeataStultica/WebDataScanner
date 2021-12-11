@@ -28,7 +28,7 @@ class WebParser:
         self.extractor = Boilerpipe()
 
     def search_n(self):
-        if self.js_parse or self.browser_name=='bing':
+        if self.js_parse or self.browser_name=='Bing':
             options = Options()
             options.add_argument('--enable-javascript')
             options.headless = True
@@ -44,8 +44,8 @@ class WebParser:
         texts = []
 
         for i in self.links:
-            data = trafilatura.fetch_url(i)
-            _, result = self.extractor.extract_text(data)#trafilatura.extract(data, favor_recall=True)
+            data = requests.get(i, verify=False).text
+            _, result = self.extractor.extract_text(data)
 
             if result is not None and "JavaScript недоступно." not in result:
                 if result is not None and len(result) >= self.text_minimum:
@@ -55,17 +55,12 @@ class WebParser:
                     text = self.crawl_url(i)
                     if text is not None and len(text) >= self.text_minimum:
                         texts.append([text, i, 0])
-        #print(len(texts))
-        #print(texts)
         if self.is_compare and self.is_compare!='no':
             texts = self.compare_texts(texts)
         final_text = self.formats_text(texts)
-        #print('\n\n------')
-        #print(final_text)
         if self.browser:
             self.browser.quit()
         return final_text
-        #print(result)
 
     def compare_texts(self, texts):
         deleted = set()
@@ -112,9 +107,7 @@ class WebParser:
            return ''
     def formats_text(self, texts):
         result = ''
-        print("before s: "+str(len(texts)))
         texts.sort(key=lambda x: x[2], reverse=True)
-        print("after s: "+str(len(texts)))
         for i in texts:
             if self.is_compare!='yes':
                 d = ''
@@ -125,10 +118,7 @@ class WebParser:
     def bing_urls(self):
         pagination = 1
         url = urlunparse(("https", "www.bing.com", "/search", "", urlencode({"q": self.query}), ""))
-        #custom_user_agent = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:47.0) Gecko/20100101 Firefox/47.0"
         while len(self.links) < self.source_count:
-           # print(url+'&first='+str(pagination))
-            #req = Request(url, headers={"User-Agent": custom_user_agent})
             self.browser.get(url+'&first='+str(pagination))
             self.scrollDown(20)
             elem = self.browser.find_element_by_xpath('//*')
@@ -139,15 +129,10 @@ class WebParser:
             for link in links:
                 tags = ['<strong>', '</strong>']
                 result = re.split('</cite>', re.split('<cite>', str(link))[1])[0]
-                #print(result)
                 for i in tags:
                     result = re.sub(i, '', result)
-                #print('---')
-                #print(result)
                 all_links.append(result)
             pagination+=10
-          #  print(len(all_links))
-         #   print(len(self.links))
             for i in all_links:
                 if len(self.links) >= self.source_count:
                     break
@@ -155,9 +140,6 @@ class WebParser:
                 if isvalid:
                     self.links.append(isvalid)
             time.sleep(5)
-            #self.browser.close()
-        #print(self.links)
-        #print(len(self.links))
     def url_valid(self, x):
         try:
             result = urlparse(x)
@@ -169,5 +151,3 @@ class WebParser:
             return False
         except:
             return False
-#a = WebParser(query='a star algorithm', source_count=19, browser_name='bing')
-#a.search_n()

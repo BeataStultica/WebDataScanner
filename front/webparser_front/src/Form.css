@@ -1,5 +1,5 @@
 .demoForm {
-  width: 500px;
+  width: 100%;
   margin: auto;
 }
 
@@ -7,6 +7,11 @@
   display: flex;
   align-items: center;
   margin-bottom: 20px;
+}
+
+.parse_type {
+  margin-left: 10%;
+  margin-right: 10%;
 }
 .type_radio {
   text-align: center;
@@ -34,13 +39,16 @@ label {
 
 .redactor {
   margin-top: 2vh;
-  width: 90vw;
+  width: 90%;
   height: 70vh;
+  margin-left: auto;
+  margin-right: auto;
   outline: none;
 }
 
 textarea {
   tab-size: 4;
+  width: 90vw;
 }
 
 .webapp {
@@ -50,11 +58,16 @@ textarea {
 }
 
 .format {
-  width: 10vw;
+  width: 150px;
   align-self: center;
 }
 
 .btn {
-  width: 10vw;
+  width: 150px;
   align-self: center;
+}
+
+.type_radio {
+  margin-right: 10px;
+  margin-left: 20px;
 }

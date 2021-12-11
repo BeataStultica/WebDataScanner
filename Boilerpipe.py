@@ -141,7 +141,6 @@ class ParseState(object):
             self.curr_ids.append('')
         if action == 'anchor':
             self.anchor_depth += 1
-            #assert self.anchor_depth == 1, "Anchor tags can't be nested"
         elif action == 'ignore':
             self.flush()
             self.ignore_depth += 1

@@ -228,7 +228,10 @@ class Form extends Component {
             <FormErrors formErrors={this.state.formErrors} />
           </div>
 
-          <div onChange={this.onChangeValue.bind(this)} className="rad">
+          <div
+            onChange={this.onChangeValue.bind(this)}
+            className="rad parse_type"
+          >
             <input
               type="radio"
               value="urlist"
