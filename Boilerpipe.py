@@ -8,13 +8,11 @@ def wc(text):
 
 
 class Text:
-    def __init__(self, text='',  ignore=0, tags=[], ids=[]):
+    def __init__(self, text='',  ignore=0, tags=[]):
         self.cleaners = HTMLcleaners()
         self.text = self.cleaners.clean_html(text)
-        #self.depth = depth
         self.ignore = ignore
         self.tags = tags
-        self.ids = ids
         self.labels = set()
         self.wordcount = 0
         self.linecount = 0
@@ -69,12 +67,11 @@ class Text:
         return len(self.text)
 
 
-class ParseState(object):
+class ParseState():
     def __init__(self):
         self.parts = []
-        self.title = u''
-        self.curr_text = u''
-        self.curr_ids = []
+        self.title = ''
+        self.curr_text = ''
         self.tags = []
         self.ignore_depth = 0
         self.font_sizes = [3]
@@ -101,7 +98,7 @@ class ParseState(object):
         curr = self.curr_text.strip()
         if curr:
             self.parts.append(
-                Text(self.curr_text, self.ignore_depth, self.tags[:], self.curr_ids[:]))
+                Text(self.curr_text, self.ignore_depth, self.tags[:]))
             self.parts[-1].labels |= set(labels)
         self.curr_text = ''
 
@@ -129,10 +126,6 @@ class ParseState(object):
     def tag_start(self, name, attr):
         action = self.__actions.get(name, None)
         self.tags.append(name)
-        try:
-            self.curr_ids.append(attr['id'])
-        except KeyError:
-            self.curr_ids.append('')
         if action == 'anchor':
             pass
         elif action == 'ignore':
@@ -176,7 +169,7 @@ class ParseState(object):
         elif action == 'body':
             self.flush()
         elif action == 'inline':
-            self.curr_text = self.curr_text.strip() + u' '
+            self.curr_text = self.curr_text.strip() + ' '
             if name == 'font':
                 self.font_sizes.pop()
         elif action == 'block':
@@ -189,7 +182,6 @@ class ParseState(object):
         else:
             self.flush()
         assert name == self.tags.pop()
-        self.curr_ids.pop()
     def title_cleaner(self, title):
         splitter = "\s*[\xbb|,:()\-\xa0]+\s*"
         best = sorted(re.split(splitter, title), key=len)[-1]
