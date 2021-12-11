@@ -1,8 +1,8 @@
 
 import functools
 import re
-import sys
-sys.setrecursionlimit(2000)
+#import sys
+#sys.setrecursionlimit(2000)
 class HTMLcleaners:
     entities = {'nbsp': ' ',
                 'mdash': '-',
@@ -47,6 +47,7 @@ class HTMLcleaners:
         try:
             parts = []
             curr = 0
+            '''
             for m in re.finditer('&#([xX]?)([0-9a-fA-F]+);', html):
                 parts.append(html[curr:m.start()])
                 ishex, number = m.groups()
@@ -55,6 +56,7 @@ class HTMLcleaners:
                 curr = m.end()
             parts.append(html[curr:])
             html = ''.join(parts)
+            '''
         except:
             print('Recursion limit')
         finally:
@@ -72,11 +74,15 @@ class HTMLcleaners:
         txt = txt.replace(' \n', '\n')
         txt = txt.replace('\n ', '\n')
         txt = txt.replace('\n\n', '\n')
+        '''
         try:
+            
             txt = re.sub(' +', ' ', txt)
             return txt
         except:
             return txt
+        '''
+        return txt
 
     def clean_html(self, html):
         return self.translate_whitespace(self.translate_microsoft(self.translate_html_entities(html)))
