@@ -68,6 +68,9 @@ def default_error_handler(e):
     print('An error occured:')
     print(e)
 
+@app.route('/')
+def hello():
+    return 'Hello'
 
 
 
