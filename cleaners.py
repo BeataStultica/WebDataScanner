@@ -1,7 +1,8 @@
 
 import functools
 import re
-
+import sys
+sys.setrecursionlimit(2000)
 class HTMLcleaners:
     entities = {'nbsp': ' ',
                 'mdash': '-',
