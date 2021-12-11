@@ -317,11 +317,33 @@ class Boilerpipe:
         return body
 
 
-    def extract_text(self, html):
-        page = self.simple_filter(html)
-        title = page.title
-        body = ''
-        for p in page.good:
-            body += self.clean_body(p.text, title) + ' '
-        return title, body
 
+    def extract_text(self, html):
+        with time_limit(18, 'time end'):
+            page = self.simple_filter(html)
+            title = page.title
+            body = ''
+            for p in page.good:
+                body += self.clean_body(p.text, title) + ' '
+            return title, body
+        return '', ''
+
+from contextlib import contextmanager
+import threading
+import _thread
+
+class TimeoutException(Exception):
+    def __init__(self, msg=''):
+        self.msg = msg
+
+@contextmanager
+def time_limit(seconds, msg=''):
+    timer = threading.Timer(seconds, lambda: _thread.interrupt_main())
+    timer.start()
+    try:
+        yield
+    except KeyboardInterrupt:
+        raise TimeoutException("Timed out for operation {}".format(msg))
+    finally:
+        # if the action ends in specified time, timer is canceled
+        timer.cancel()
