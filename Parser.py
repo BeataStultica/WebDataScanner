@@ -48,7 +48,7 @@ class WebParser:
         texts = []
 
         for i in self.links:
-            socketio.emit('Message', {'data': 'Триває збір даних'}, to=client)
+            socketio.emit('Message', {'data': 'Триває збір даних, зібрано: ' + str(len(texts))}, to=client)
             data = requests.get(i, verify=False).text
             _, result = self.extractor.extract_text(data)
 

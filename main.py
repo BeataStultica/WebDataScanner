@@ -21,7 +21,7 @@ class DataThread(Thread):
     def dataGenerator(self):
         print("Initialising")
         try:
-            socketio.emit('Message', {'data': 'Start search'}, to=self.client)
+            emit('Message', {'data': 'Start search'})
             #while not thread_stop_event.isSet():
             parser = WebParser(time_w=int(self.data['time']), source_count=int(self.data['source_len']),
                                browser_name=self.data['browser'], text_minimum=int(self.data['text_len']),
