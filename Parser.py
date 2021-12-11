@@ -44,7 +44,7 @@ class WebParser:
                 firefox_binary=binary,
                 executable_path=os.environ.get('GECKODRIVER_PATH'),
                 options=options)
-            self.browser.set_page_load_timeout(self.time_w)
+            #self.browser.set_page_load_timeout(self.time_w)
         if not self.links or self.parse_type=='keyword':
             self.links = []
             if self.browser_name == 'google':
