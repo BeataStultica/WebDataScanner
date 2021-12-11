@@ -62,6 +62,8 @@ class WebParser:
         final_text = self.formats_text(texts)
         #print('\n\n------')
         #print(final_text)
+        if self.browser:
+            self.browser.quit()
         return final_text
         #print(result)
 
@@ -104,6 +106,7 @@ class WebParser:
            _, result = self.extractor.extract_text(source)#trafilatura.extract(source, favor_recall=True)
            #print('------------------\n')
            #print(result)
+           #self.browser.close()
            return (result)
         except:
            return ''
@@ -117,8 +120,8 @@ class WebParser:
                 d = ''
             else:
                 d = '\tДостовірність: '+str(i[2])
-            result += 'Джерело: '+ i[1]+d +'\n'+i[0] + '\n\n'
-        return result
+            result += 'Джерело: '+ i[1]+d +'\n'+i[0] + '   \n\n\n'
+        return result[0:-6]
     def bing_urls(self):
         pagination = 1
         url = urlunparse(("https", "www.bing.com", "/search", "", urlencode({"q": self.query}), ""))
@@ -152,6 +155,7 @@ class WebParser:
                 if isvalid:
                     self.links.append(isvalid)
             time.sleep(5)
+            #self.browser.close()
         #print(self.links)
         #print(len(self.links))
     def url_valid(self, x):

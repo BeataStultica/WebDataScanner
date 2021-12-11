@@ -176,6 +176,48 @@ class Form extends Component {
       }));
     }
   };
+  download = () => {
+    let element = document.createElement("a");
+    let format;
+    let text;
+    if (this.state.format === "txt") {
+      format = "data:text/plain;charset=utf-8,";
+      text = this.state.textvalue;
+    } else {
+      format = "data:text/json;charset=utf-8,";
+      text = this.state.textvalue.split("\n\n\n");
+      let splited = text.map((x) => {
+        let a = x.split("\n", 2);
+        let b = a[0].split("\t", 2);
+        return [b, a[1]];
+      });
+      let json = splited.map((x, index) => {
+        return {
+          source:
+            x[0][0].split(" ", 2)[1] === undefined
+              ? ""
+              : x[0][0].split(" ", 2)[1],
+          certainty: x[0].length === 2 ? x[0][1].split(" ", 2)[1] : "",
+          texts:
+            x[1] === undefined
+              ? typeof text === "object" && text.length >= 2
+                ? text[index]
+                : text
+              : x[1],
+        };
+      });
+      text = JSON.stringify(json);
+    }
+    element.setAttribute("href", format + encodeURIComponent(text));
+    element.setAttribute("download", "CollectedData." + this.state.format);
+
+    element.style.display = "none";
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+  };
 
   render() {
     return (
@@ -360,10 +402,13 @@ class Form extends Component {
           onChange={this.handleUserInput}
         >
           <option value="txt">txt</option>
-          <option value="doc">doc</option>
           <option value="json">json</option>
         </select>
-        <button type="submit" className="btn btn-primary">
+        <button
+          type="submit"
+          className="btn btn-primary"
+          onClick={this.download}
+        >
           Завантажити інформацію
         </button>
       </div>
