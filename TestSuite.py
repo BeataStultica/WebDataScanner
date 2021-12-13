@@ -5,6 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from webdriver_manager.firefox import GeckoDriverManager
 import requests
+from flask_socketio import SocketIO
 class TestMethods(unittest.TestCase):
     def test_wc(self):
         self.assertEqual(wc('addddd  4ds 3 dd .---->'), 4)
@@ -95,8 +96,9 @@ class TestMethods(unittest.TestCase):
         self.assertEqual(len(p.links), 5)
     '''
     def test_search_n(self):
-        p =WebParser(links=['https://en.wikipedia.org/wiki/Minimax', 'https://en.wikipedia.org/wiki/Artificial_intelligence'], parse_type='links', is_compare=True)
-        r = p.search_n('test', 'test')
+        socketio = SocketIO(app, cors_allowed_origins="*")
+        p =WebParser(links=['https://en.wikipedia.org/wiki/Minimax', 'https://en.wikipedia.org/wiki/Artificial_intelligence'], parse_type='links', is_compare=True, js_parse=False)
+        r = p.search_n(socketio, 'drjs2239dj223193')
         self.assertEqual(len(r.split('\n\n\n')), 2)
 
 
