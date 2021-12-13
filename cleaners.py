@@ -76,30 +76,7 @@ class HTMLcleaners:
     def clean_html(self, html):
         return self.translate_whitespace(self.translate_microsoft(self.translate_html_entities(html)))
 
-    def strip_letters(self, raw, letters):
-        iraw = 0
-        ilets = 0
-        while letters[ilets:] and raw[iraw:]:
-            if raw[iraw].lower() == letters[ilets].lower():
-                ilets += 1
-            iraw += 1
-        return raw[iraw:]
 
-    def strip_words(self, text, strip_this):
-        letters = functools.partial(re.sub, '[^a-z]+', '')
-        ltext = letters(text.lower())
-        lstrip = letters(strip_this.lower())
-
-        best = (4, 0, '')
-        for i in range(1, 1 + min(50, len(ltext), len(lstrip))):
-            a, b = ltext[:i], lstrip[:i]
-            score = (float(self.edit_distance(a, b)) / len(b), -len(b), b)
-            if score < best:
-                best = score
-        density, length, letters = best
-        if best[0] > 0.1 or abs(length) < min(len(lstrip), 10):
-            return text
-        return self.strip_letters(text, letters).lstrip(' .?;:()-\t\n')
 
     def strip_partial_sentence(self, text):
         return re.sub('^[^.?]{0,10}(\.|\?)\s*', '', text)

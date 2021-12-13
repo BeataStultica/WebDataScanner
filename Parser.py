@@ -14,7 +14,7 @@ import re
 import difflib
 
 class WebParser:
-    def __init__(self, time_w=10, source_count=40, browser_name='google', text_minimum=40, is_compare=False, links=False, query='', parse_type='keyword', js_parse=True):
+    def __init__(self, time_w=10, source_count=40, browser_name='google', text_minimum=40, is_compare=False, links=[], query='', parse_type='keyword', js_parse=True):
         self.time_w = time_w
         self.source_count = source_count
         self.browser_name=browser_name
@@ -27,7 +27,7 @@ class WebParser:
         self.browser = None
         self.extractor = Boilerpipe()
 
-    def search_n(self):
+    def search_n(self, socket, client):
         if self.js_parse or self.browser_name=='Bing':
             options = Options()
             options.add_argument('--enable-javascript')
@@ -44,24 +44,28 @@ class WebParser:
         texts = []
         timer = time.time()
         for i in self.links:
-            #print("Time: " + str(time.time()-timer))
-            #print(len(texts))
+            print("Time: " + str(time.time()-timer))
+            print(len(texts))
             try:
                 data = requests.get(i, verify=False).text
             except:
+                print('---')
                 continue
+            print('before')
             _, result = self.extractor.extract_text(data)
-
             if result is not None and "JavaScript недоступно." not in result:
+                print('-+')
                 if result is not None and len(result) >= self.text_minimum:
                     texts.append([result,i, 0])
             else:
                 if self.js_parse:
+                    print('--')
                     text = self.crawl_url(i)
                     if text is not None and len(text) >= self.text_minimum:
                         texts.append([text, i, 0])
         if self.is_compare and self.is_compare!='no':
             texts = self.compare_texts(texts)
+        print('finish')
         final_text = self.formats_text(texts)
         if self.browser:
             self.browser.quit()

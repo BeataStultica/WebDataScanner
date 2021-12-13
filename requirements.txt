@@ -17,6 +17,7 @@ click-repl==0.2.0
 colorama==0.4.4
 configparser==5.2.0
 courlan==0.6.0
+coverage==6.2
 crayons==0.4.0
 cryptography==36.0.0
 cssselect==1.1.0
@@ -25,6 +26,8 @@ EasyProcess==0.3
 Flask==2.0.2
 Flask-Cors==3.0.10
 Flask-SocketIO==5.1.1
+Flask-Sockets==0.2.1
+func-timeout==4.3.5
 gevent==21.8.0
 gevent-websocket==0.10.1
 google==3.0.0

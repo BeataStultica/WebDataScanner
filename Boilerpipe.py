@@ -75,7 +75,6 @@ class ParseState():
         self.curr_text = ''
         self.tags = []
         self.ignore_depth = 0
-        self.font_sizes = [3]
         self.__actions = {}
         self.fill_actions()
         self.cleaners = HTMLcleaners()
@@ -103,26 +102,6 @@ class ParseState():
             self.parts[-1].labels |= set(labels)
         self.curr_text = ''
 
-    def apply_font(self, start, txt):
-        if not txt:
-            return start
-        delta = re.match(('([+-]\d+)'), txt)
-        absolute = re.match('(\d+)', txt)
-        if txt == 'smaller':
-            return start - 1
-        elif txt == 'larger':
-            return start + 1
-        elif delta:
-            try:
-                return start + int(delta.group(1))
-            except TypeError:
-                pass
-        elif absolute:
-            try:
-                return int(absolute.group(1))
-            except TypeError:
-                pass
-        return start
 
     def tag_start(self, name, attr):
         action = self.__actions.get(name, None)
@@ -136,8 +115,6 @@ class ParseState():
             self.flush()
         elif action == 'inline':
             self.curr_text = self.curr_text.strip(' ') + ' '
-            if name == 'font':
-                self.font_sizes.append(self.apply_font(self.font_sizes[-1], attr.get('size', None)))
         elif action == 'block':
             self.flush()
         elif action == 'paragraph':
@@ -171,23 +148,15 @@ class ParseState():
             self.flush()
         elif action == 'inline':
             self.curr_text = self.curr_text.strip() + ' '
-            if name == 'font':
-                self.font_sizes.pop()
         elif action == 'block':
             self.flush(name, 'heading')
         elif action == 'paragraph':
             self.flush('maybe_content', 'maybe_content_paragraph')
         elif action == 'title':
             self.flush('title')
-            self.title = self.title_cleaner(self.parts[-1].text)
         else:
             self.flush()
         assert name == self.tags.pop()
-    def title_cleaner(self, title):
-        splitter = "\s*[\xbb|,:()\-\xa0]+\s*"
-        best = sorted(re.split(splitter, title), key=len)[-1]
-        best = best.replace("'", "", 1)
-        return best
     def __str__(self):
         return '<%s %d:%r>' % (self.__class__.__name__, len(self.parts), map(len, self.parts))
 
@@ -313,12 +282,8 @@ class Boilerpipe:
         return page
 
 
-    def clean_body(self, body, title):
+    def clean_body(self, body):
         body = body.strip()
-        if body and title:
-            newbody = self.cleaners.strip_words(body, title)
-            if newbody != body:
-                body = self.cleaners.strip_partial_sentence(body)
         if body:
             newbody = self.cleaners.strip_timestamp(body)
             if newbody != body:
@@ -334,17 +299,16 @@ class Boilerpipe:
             timer = time.time()
             page = self.simple_filter(html)
             #print('Ts ' + str(time.time() - timer))
-            title = page.title
             body = ''
             timer = time.time()
             for p in page.good:
                 if time.time() - timer < 10:
-                    body += self.clean_body(p.text, title) + ' '
+                    body += self.clean_body(p.text) + ' '
                     #print('Ts -' + str(time.time() - timer))
                 else:
                     body +=p.text
 
-            return title, body
+            return '', body
         try:
             my_square = func_timeout.func_timeout(
                 10, a
