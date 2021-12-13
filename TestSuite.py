@@ -94,13 +94,13 @@ class TestMethods(unittest.TestCase):
         p.browser.set_page_load_timeout(5)
         p.bing_urls()
         self.assertEqual(len(p.links), 5)
-    '''
+    
     def test_search_n(self):
         socketio = SocketIO(app, cors_allowed_origins="*")
         p =WebParser(links=['https://en.wikipedia.org/wiki/Minimax', 'https://en.wikipedia.org/wiki/Artificial_intelligence'], parse_type='links', is_compare=True, js_parse=False)
         r = p.search_n(socketio, 'drjs2239dj223193')
         self.assertEqual(len(r.split('\n\n\n')), 2)
-
+    '''
 
 
 
