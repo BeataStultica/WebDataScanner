@@ -1,6 +1,7 @@
 import re
 from bs4 import BeautifulSoup as BS, Tag, Comment
 from cleaners import HTMLcleaners
+import time
 
 
 def wc(text):
@@ -214,12 +215,21 @@ class Boilerpipe:
 
 
     def parse_html(self, html):
+        timer = time.time()
+        #print('======')
         html = self.cleaners.translate_microsoft(html)
         html = self.cleaners.translate_nurses(html)
+        #print('translate_time: ' + str(time.time() - timer))
         bs = BS(html, 'lxml')
         state = ParseState()
-        self.descend(bs, state)
-        return state
+        timer = time.time()
+        try:
+            self.descend(bs, state)
+            #print('descend time: ' + str(time.time() - timer))
+            return state
+        except:
+            #print('stack overflow')
+            return state
 
 
     def merge_text_density(self, blocks):
@@ -318,10 +328,29 @@ class Boilerpipe:
 
 
     def extract_text(self, html):
-        page = self.simple_filter(html)
-        title = page.title
-        body = ''
-        for p in page.good:
-            body += self.clean_body(p.text, title) + ' '
-        return title, body
+        import time
+        import func_timeout
+        def a():
+            timer = time.time()
+            page = self.simple_filter(html)
+            #print('Ts ' + str(time.time() - timer))
+            title = page.title
+            body = ''
+            timer = time.time()
+            for p in page.good:
+                if time.time() - timer < 10:
+                    body += self.clean_body(p.text, title) + ' '
+                    #print('Ts -' + str(time.time() - timer))
+                else:
+                    body +=p.text
+
+            return title, body
+        try:
+            my_square = func_timeout.func_timeout(
+                10, a
+            )
+            return my_square
+        except func_timeout.FunctionTimedOut:
+            print('error')
+            return '', ''
 

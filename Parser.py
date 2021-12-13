@@ -42,9 +42,14 @@ class WebParser:
             else:
                 self.bing_urls()
         texts = []
-
+        timer = time.time()
         for i in self.links:
-            data = requests.get(i, verify=False).text
+            #print("Time: " + str(time.time()-timer))
+            #print(len(texts))
+            try:
+                data = requests.get(i, verify=False).text
+            except:
+                continue
             _, result = self.extractor.extract_text(data)
 
             if result is not None and "JavaScript недоступно." not in result:
@@ -60,7 +65,7 @@ class WebParser:
         final_text = self.formats_text(texts)
         if self.browser:
             self.browser.quit()
-        print(len(texts))
+        #print(len(texts))
         return final_text
 
     def compare_texts(self, texts):

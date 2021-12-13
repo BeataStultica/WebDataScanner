@@ -40,7 +40,7 @@ class Form extends Component {
     console.log("component unmounted");
   }
   componentDidMount() {
-    var sensorEndpoint = "https://webcleaner.herokuapp.com/";
+    var sensorEndpoint = "http://localhost:5000/";
     this.socket = io.connect(sensorEndpoint, {
       reconnection: true,
       transports: ["websocket"],
